@@ -31,17 +31,36 @@ autocmd('TextYankPost', {
     end,
 })
 
+local function is_eslint_installed()
+  local root_files = {
+    '.eslintrc',
+    '.eslintrc.json',
+    '.eslintrc.js',
+    'node_modules/.bin/eslint'
+  }
+
+  for _, file in ipairs(root_files) do
+    if vim.fn.glob(file) ~= '' then
+      return true
+    end
+  end
+
+  return false
+end
+
 autocmd({"BufWritePre"}, {
     group = maGroup,
     pattern = "*",
     command = [[%s/\s\+$//e]],
 })
 
-autocmd({"BufWritePost"}, {
-    group = maGroup,
-    pattern = "*",
-    command = ":EslintFixAll",
-})
+if is_eslint_installed() then
+  autocmd({"BufWritePost"}, {
+      group = maGroup,
+      pattern = {"*.jsx", "*.js", "*.ts", "*.tsx"},
+      command = ":EslintFixAll",
+  })
+end
 
 autocmd('LspAttach', {
     group = maGroup,
