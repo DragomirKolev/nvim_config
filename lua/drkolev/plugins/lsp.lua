@@ -16,6 +16,7 @@ return {
     config = function()
         local cmp = require('cmp')
         local cmp_lsp = require("cmp_nvim_lsp")
+        local lspconfig = require("lspconfig")
         local capabilities = vim.tbl_deep_extend(
             "force",
             {},
@@ -39,8 +40,22 @@ return {
                     }
                 end,
 
+
+                svelte = function()
+                  lspconfig.svelte.setup({
+                    on_attach = function(client)
+                      vim.api.nvim_create_autocmd("BufWritePost", {
+                        pattern = { "*.js", "*.ts" },
+                        callback = function(ctx)
+                          client.notify("$/onDidChangeTsOrJsFile", { uri = ctx.match })
+                        end,
+                      })
+                    end,
+                  })
+                end,
+
+
                 ["lua_ls"] = function()
-                    local lspconfig = require("lspconfig")
                     lspconfig.lua_ls.setup {
                         capabilities = capabilities,
                         settings = {
